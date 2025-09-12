@@ -1,31 +1,42 @@
 "use client";
 
-import { useState } from "react";
-import { useCreatePost } from "@/lib/mutate";
-import { CreatePost } from "@/types/post";
+import { useState, useEffect } from "react";
+import { useGetPost } from "@/lib/queries";
+import { useUpdatePost } from "@/lib/mutate";
+import { UpdatePost } from "@/types/post";
 
-export default function NewPostPage() {
+export default function EditPostPage({ params }: { params: { id: string } }) {
+  const { data: post } = useGetPost(params.id);
+  const { mutate: updatePost } = useUpdatePost(params.id);
+
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
-  const { mutate: createPost } = useCreatePost();
+
+  useEffect(() => {
+    if (post) {
+      setTitle(post.data?.title || "");
+      setSummary(post.data?.summary || "");
+      setContent(post.data?.content || "");
+    }
+  }, [post]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const postData: CreatePost = {
+    const postData: UpdatePost = {
       title,
       summary: summary.trim() || null,
       content,
     };
 
-    createPost(postData);
-    alert("Post submitted! Check the console for the data.");
+    updatePost(postData);
+    alert("Post updated! Check the console for the data.");
   };
 
   return (
     <>
-      <h1 className="page-title">Write a New Post</h1>
+      <h1 className="page-title">Edit Post</h1>
       <form onSubmit={handleSubmit} className="post-form">
         <div className="form-group">
           <label htmlFor="title">Title</label>
@@ -57,7 +68,7 @@ export default function NewPostPage() {
           />
         </div>
         <button type="submit" className="submit-btn">
-          Create Post
+          Update Post
         </button>
       </form>
     </>

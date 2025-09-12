@@ -1,58 +1,46 @@
+"use client";
+import { useGetPost } from "@/lib/queries";
+import { useDeletePost } from "@/lib/mutate";
 import Link from "next/link";
-
-type Post = {
-  id: number;
-  title: string;
-  date: string;
-  content: string;
-};
-
-const posts: Post[] = [
-  {
-    id: 1,
-    title: "First Post",
-    date: "2025-09-11",
-    content: "This is the full content of the first post. It can be longer and contain more details.",
-  },
-  {
-    id: 2,
-    title: "Second Post",
-    date: "2025-09-12",
-    content: "This is the full content of the second post. Exploring more topics in depth.",
-  },
-];
+import { useRouter } from "next/navigation";
 
 export default function PostPage({ params }: { params: { id: string } }) {
-  const post = posts.find((p) => p.id === parseInt(params.id, 10));
+  const { data: post } = useGetPost(params.id);
+  const { mutate: deletePost } = useDeletePost();
+  const router = useRouter();
 
   if (!post) {
     return <div>Post not found</div>;
   }
 
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      deletePost(params.id, {
+        onSuccess: () => {
+          router.push("/");
+        },
+      });
+    }
+  };
+
   return (
-    <div className="container">
-      <header className="header">
-        <h1 className="blog-title">
-          <Link href="/">My Tech Blog</Link>
-        </h1>
-        <nav>
-          <Link href="/">Home</Link>
-          <Link href="/new-post">New Post</Link>
-          <Link href="/about">About</Link>
-        </nav>
-      </header>
-      <main className="main-content">
-        <article className="post">
-          <h1 className="post-full-title">{post.title}</h1>
-          <p className="post-meta">{post.date}</p>
-          <div className="post-content">
-            {post.content}
-          </div>
-        </article>
-      </main>
-      <footer className="footer">
-        <p>&copy; 2025 My Tech Blog</p>
-      </footer>
-    </div>
+    <article className="post">
+      <div className="flex justify-between">
+        <h1 className="post-full-title">{post.data?.title}</h1>
+        <div className="flex gap-2">
+          <Link href={`/post/${params.id}/edit`} className="self-center">
+            Edit
+          </Link>
+          <button onClick={handleDelete} className="self-center">
+            Delete
+          </button>
+        </div>
+      </div>
+      <p className="post-meta">
+        {new Date(post.data?.created_at || "").toLocaleDateString("ko-KR")}
+      </p>
+      <div className="post-content">{post.data?.content}</div>
+    </article>
   );
 }
+
