@@ -29,11 +29,11 @@ export default function RootLayout({
     <QueryProvider>
       <html lang="en">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
         >
-          <div className="container">
+          <div className="max-w-3xl mx-auto px-4">
             <Header />
-            <main className="main-content">{children}</main>
+            <main className="py-10">{children}</main>
             <Footer />
           </div>
         </body>

@@ -24,9 +24,9 @@ export default function PostPage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <article className="post">
+    <article className="p-5">
       <div className="flex justify-between">
-        <h1 className="post-full-title">{post.data?.title}</h1>
+        <h1 className="text-4xl font-bold mb-5">{post.data?.title}</h1>
         <div className="flex gap-2">
           <Link href={`/post/${params.id}/edit`} className="self-center">
             Edit
@@ -36,10 +36,10 @@ export default function PostPage({ params }: { params: { id: string } }) {
           </button>
         </div>
       </div>
-      <p className="post-meta">
+      <p className="text-gray-500 mb-5">
         {new Date(post.data?.created_at || "").toLocaleDateString("ko-KR")}
       </p>
-      <div className="post-content">{post.data?.content}</div>
+      <div className="text-lg leading-loose">{post.data?.content}</div>
     </article>
   );
 }
