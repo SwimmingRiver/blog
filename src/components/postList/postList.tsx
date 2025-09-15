@@ -1,14 +1,57 @@
 "use client";
 import Link from "next/link";
-import { useGetPosts } from "@/lib/queries";
+import { getPosts } from "@/lib/queries";
 import type { Post } from "@/types/post";
 
+import { useEffect, useRef } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+
 const PostList = () => {
-  const { data: posts } = useGetPosts();
+  const {
+    data: postData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["posts"],
+    queryFn: ({ pageParam }) => getPosts(pageParam),
+    initialPageParam: 0,
+    refetchOnWindowFocus: false,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.count ? allPages.length : undefined,
+  });
+  const posts = postData?.pages.flatMap((page) => page.data);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   return (
     <>
-      {posts?.data.map((post: Post) => (
-        <article key={post.id} className="py-4 border-b border-gray-200">
+      {posts?.map((post: Post) => (
+        <article
+          key={post.id}
+          className="py-4 border-b border-gray-200 scroll-auto"
+        >
           <h2 className="text-2xl font-semibold mb-2">
             <Link href={`/post/${post.id}`}>{post.title}</Link>
           </h2>
@@ -18,6 +61,10 @@ const PostList = () => {
           <p className="leading-relaxed mb-4">{post.summary}</p>
         </article>
       ))}
+      <div ref={loadMoreRef}>
+        {isFetchingNextPage && "Loading..."}
+        {hasNextPage && "Load more"}
+      </div>
     </>
   );
 };

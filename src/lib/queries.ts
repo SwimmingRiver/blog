@@ -2,8 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import type { PostResponse, SinglePostResponse } from "@/types/post";
 import supabase from "./supabase";
 
-const getPosts = async (): Promise<PostResponse> => {
-  const { data, error } = await supabase.from("posts").select("*");
+export const getPosts = async (page: number): Promise<PostResponse> => {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("*")
+    .range(page * 10, (page + 1) * 10 - 1)
+    .order("created_at", { ascending: false });
   if (error) {
     throw error;
   }
@@ -19,13 +23,6 @@ const getPost = async (id: string): Promise<SinglePostResponse> => {
     throw error;
   }
   return { data };
-};
-
-export const useGetPosts = () => {
-  return useQuery<PostResponse>({
-    queryKey: ["posts"],
-    queryFn: getPosts,
-  });
 };
 
 export const useGetPost = (id: string) => {
