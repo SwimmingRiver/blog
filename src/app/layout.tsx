@@ -31,11 +31,9 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
         >
-          <div className="max-w-3xl mx-auto px-4">
-            <Header />
-            <main className="py-10">{children}</main>
-            <Footer />
-          </div>
+          <Header />
+          <main className="py-10 max-w-3xl mx-auto px-4">{children}</main>
+          <Footer />
         </body>
       </html>
     </QueryProvider>
