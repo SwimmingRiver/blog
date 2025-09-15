@@ -5,10 +5,16 @@ import { useGetPost } from "@/lib/queries";
 import { useUpdatePost } from "@/lib/mutate";
 import { UpdatePost } from "@/types/post";
 import { useRouter } from "next/navigation";
+import { use } from "react";
 
-export default function EditPostPage({ params }: { params: { id: string } }) {
-  const { data: post } = useGetPost(params.id);
-  const { mutate: updatePost, isSuccess } = useUpdatePost(params.id);
+export default function EditPostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const { data: post } = useGetPost(id);
+  const { mutate: updatePost, isSuccess } = useUpdatePost(id);
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -37,16 +43,18 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (isSuccess) {
-      router.push(`/post/${params.id}`);
+      router.push(`/post/${id}`);
     }
-  }, [isSuccess, params.id, router]);
+  }, [isSuccess, id, router]);
 
   return (
     <>
       <h1 className="text-3xl font-bold mb-8">Edit Post</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="flex flex-col">
-          <label htmlFor="title" className="font-semibold mb-2">Title</label>
+          <label htmlFor="title" className="font-semibold mb-2">
+            Title
+          </label>
           <input
             id="title"
             type="text"
@@ -57,7 +65,9 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="summary" className="font-semibold mb-2">Summary</label>
+          <label htmlFor="summary" className="font-semibold mb-2">
+            Summary
+          </label>
           <input
             id="summary"
             type="text"
@@ -68,7 +78,9 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="content" className="font-semibold mb-2">Content</label>
+          <label htmlFor="content" className="font-semibold mb-2">
+            Content
+          </label>
           <textarea
             id="content"
             value={content}
@@ -77,7 +89,10 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
             className="p-2 border border-gray-300 rounded text-base min-h-52 resize-y"
           />
         </div>
-        <button type="submit" className="bg-gray-800 text-white py-3 px-5 rounded text-lg cursor-pointer self-start">
+        <button
+          type="submit"
+          className="bg-gray-800 text-white py-3 px-5 rounded text-lg cursor-pointer self-start"
+        >
           Update Post
         </button>
       </form>

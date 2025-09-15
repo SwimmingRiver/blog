@@ -3,9 +3,15 @@ import { useGetPost } from "@/lib/queries";
 import { useDeletePost } from "@/lib/mutate";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { use } from "react";
 
-export default function PostPage({ params }: { params: { id: string } }) {
-  const { data: post } = useGetPost(params.id);
+export default function PostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const { data: post } = useGetPost(id);
   const { mutate: deletePost } = useDeletePost();
   const router = useRouter();
 
@@ -15,7 +21,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
 
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this post?")) {
-      deletePost(params.id, {
+      deletePost(id, {
         onSuccess: () => {
           router.push("/");
         },
@@ -28,7 +34,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
       <div className="flex justify-between">
         <h1 className="text-4xl font-bold mb-5">{post.data?.title}</h1>
         <div className="flex gap-2">
-          <Link href={`/post/${params.id}/edit`} className="self-center">
+          <Link href={`/post/${id}/edit`} className="self-center">
             Edit
           </Link>
           <button onClick={handleDelete} className="self-center">
@@ -43,4 +49,3 @@ export default function PostPage({ params }: { params: { id: string } }) {
     </article>
   );
 }
-
