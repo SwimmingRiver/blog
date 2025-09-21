@@ -4,11 +4,16 @@ import { useState, useEffect } from "react";
 import { useCreatePost } from "@/lib/mutate";
 import { CreatePost } from "@/types/post";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github.css";
 
 export default function NewPostPage() {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
+  const [isPreview, setIsPreview] = useState(false);
   const { mutate: createPost, isSuccess, data: newPost } = useCreatePost();
   const router = useRouter();
 
@@ -31,11 +36,13 @@ export default function NewPostPage() {
   }, [isSuccess, newPost, router]);
 
   return (
-    <>
+    <div className="h-full overflow-y-auto">
       <h1 className="text-3xl font-bold mb-8">Write a New Post</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="flex flex-col">
-          <label htmlFor="title" className="font-semibold mb-2">Title</label>
+          <label htmlFor="title" className="font-semibold mb-2">
+            Title
+          </label>
           <input
             id="title"
             type="text"
@@ -46,7 +53,9 @@ export default function NewPostPage() {
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="summary" className="font-semibold mb-2">Summary</label>
+          <label htmlFor="summary" className="font-semibold mb-2">
+            Summary
+          </label>
           <input
             id="summary"
             type="text"
@@ -57,19 +66,45 @@ export default function NewPostPage() {
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="content" className="font-semibold mb-2">Content</label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-            className="p-2 border border-gray-300 rounded text-base min-h-52 resize-y"
-          />
+          <div className="flex justify-between items-center mb-2">
+            <label htmlFor="content" className="font-semibold">
+              Content (Markdown)
+            </label>
+            <button
+              type="button"
+              onClick={() => setIsPreview(!isPreview)}
+              className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+            >
+              {isPreview ? "Edit" : "Preview"}
+            </button>
+          </div>
+          {isPreview ? (
+            <div className="p-4 border border-gray-300 rounded min-h-52 markdown">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight]}
+              >
+                {content || "*Preview will appear here...*"}
+              </ReactMarkdown>
+            </div>
+          ) : (
+            <textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+              placeholder="Write your post in Markdown..."
+              className="p-2 border border-gray-300 rounded text-base min-h-52 resize-y font-mono"
+            />
+          )}
         </div>
-        <button type="submit" className="bg-gray-800 text-white py-3 px-5 rounded text-lg cursor-pointer self-start">
+        <button
+          type="submit"
+          className="bg-gray-800 text-white py-3 px-5 rounded text-lg cursor-pointer self-start"
+        >
           Create Post
         </button>
       </form>
-    </>
+    </div>
   );
 }

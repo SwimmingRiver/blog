@@ -5,6 +5,9 @@ import type { Post } from "@/types/post";
 
 import { useEffect, useRef } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import "highlight.js/styles/github.css";
 
 const PostList = () => {
   const {
@@ -59,7 +62,13 @@ const PostList = () => {
           <p className="text-gray-500 mb-2">
             {new Date(post.created_at).toLocaleDateString("ko-KR")}
           </p>
-          <p className="leading-relaxed mb-4">{post.summary}</p>
+          {post.summary && (
+            <div className="markdown mb-4">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {post.summary}
+              </ReactMarkdown>
+            </div>
+          )}
         </article>
       ))}
       <div ref={loadMoreRef}>

@@ -4,6 +4,10 @@ import { useDeletePost } from "@/lib/mutate";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github.css";
 
 export default function PostPage({
   params,
@@ -45,7 +49,14 @@ export default function PostPage({
       <p className="text-gray-500 mb-5">
         {new Date(post.data?.created_at || "").toLocaleDateString("ko-KR")}
       </p>
-      <div className="text-lg leading-loose">{post.data?.content}</div>
+      <div className="markdown">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
+        >
+          {post.data?.content || ""}
+        </ReactMarkdown>
+      </div>
     </article>
   );
 }

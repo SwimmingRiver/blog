@@ -6,6 +6,10 @@ import { useUpdatePost } from "@/lib/mutate";
 import { UpdatePost } from "@/types/post";
 import { useRouter } from "next/navigation";
 import { use } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github.css";
 
 export default function EditPostPage({
   params,
@@ -20,6 +24,7 @@ export default function EditPostPage({
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
+  const [isPreview, setIsPreview] = useState(false);
 
   useEffect(() => {
     if (post) {
@@ -78,16 +83,35 @@ export default function EditPostPage({
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="content" className="font-semibold mb-2">
-            Content
-          </label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-            className="p-2 border border-gray-300 rounded text-base min-h-52 resize-y"
-          />
+          <div className="flex justify-between items-center mb-2">
+            <label htmlFor="content" className="font-semibold">Content (Markdown)</label>
+            <button
+              type="button"
+              onClick={() => setIsPreview(!isPreview)}
+              className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+            >
+              {isPreview ? "Edit" : "Preview"}
+            </button>
+          </div>
+          {isPreview ? (
+            <div className="p-4 border border-gray-300 rounded min-h-52 markdown">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight]}
+              >
+                {content || "*Preview will appear here...*"}
+              </ReactMarkdown>
+            </div>
+          ) : (
+            <textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+              placeholder="Write your post in Markdown..."
+              className="p-2 border border-gray-300 rounded text-base min-h-52 resize-y font-mono"
+            />
+          )}
         </div>
         <button
           type="submit"
