@@ -3,11 +3,13 @@ import { useGetPost } from "@/lib/queries";
 import { useDeletePost } from "@/lib/mutate";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function PostPage({
   params,
@@ -18,6 +20,25 @@ export default function PostPage({
   const { data: post } = useGetPost(id);
   const { mutate: deletePost } = useDeletePost();
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user || null);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
 
   if (!post) {
     return <div>Post not found</div>;
@@ -37,14 +58,16 @@ export default function PostPage({
     <article className="p-5">
       <div className="flex justify-between">
         <h1 className="text-4xl font-bold mb-5">{post.data?.title}</h1>
-        <div className="flex gap-2">
-          <Link href={`/post/${id}/edit`} className="self-center">
-            Edit
-          </Link>
-          <button onClick={handleDelete} className="self-center">
-            Delete
-          </button>
-        </div>
+        {user && (
+          <div className="flex gap-2">
+            <Link href={`/post/${id}/edit`} className="self-center">
+              Edit
+            </Link>
+            <button onClick={handleDelete} className="self-center">
+              Delete
+            </button>
+          </div>
+        )}
       </div>
       <p className="text-gray-500 mb-5">
         {new Date(post.data?.created_at || "").toLocaleDateString("ko-KR")}

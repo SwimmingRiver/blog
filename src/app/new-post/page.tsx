@@ -8,14 +8,19 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function NewPostPage() {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [isPreview, setIsPreview] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const { mutate: createPost, isSuccess, data: newPost } = useCreatePost();
   const router = useRouter();
+  const supabase = createClient();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,10 +35,36 @@ export default function NewPostPage() {
   };
 
   useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      setUser(user);
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, [router, supabase.auth]);
+
+  useEffect(() => {
     if (isSuccess && newPost?.data) {
       router.push(`/post/${newPost.data.id}`);
     }
   }, [isSuccess, newPost, router]);
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="h-full overflow-y-auto">

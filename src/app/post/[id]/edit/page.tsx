@@ -10,6 +10,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function EditPostPage({
   params,
@@ -25,6 +27,23 @@ export default function EditPostPage({
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [isPreview, setIsPreview] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      setUser(user);
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, [router, supabase.auth]);
 
   useEffect(() => {
     if (post) {
@@ -51,6 +70,18 @@ export default function EditPostPage({
       router.push(`/post/${id}`);
     }
   }, [isSuccess, id, router]);
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <>
