@@ -84,7 +84,7 @@ export default function EditPostPage({
   }
 
   return (
-    <>
+    <div className="h-full overflow-y-auto">
       <h1 className="text-3xl font-bold mb-8">Edit Post</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="flex flex-col">
@@ -151,6 +151,6 @@ export default function EditPostPage({
           Update Post
         </button>
       </form>
-    </>
+    </div>
   );
 }

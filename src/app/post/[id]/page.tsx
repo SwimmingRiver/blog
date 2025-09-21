@@ -55,7 +55,8 @@ export default function PostPage({
   };
 
   return (
-    <article className="p-5">
+    <div className="h-full overflow-y-auto">
+      <article className="p-5">
       <div className="flex justify-between">
         <h1 className="text-4xl font-bold mb-5">{post.data?.title}</h1>
         {user && (
@@ -80,6 +81,7 @@ export default function PostPage({
           {post.data?.content || ""}
         </ReactMarkdown>
       </div>
-    </article>
+      </article>
+    </div>
   );
 }
