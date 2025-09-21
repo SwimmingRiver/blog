@@ -17,8 +17,12 @@ const PostList = () => {
     queryFn: ({ pageParam }) => getPosts(pageParam),
     initialPageParam: 0,
     refetchOnWindowFocus: false,
-    getNextPageParam: (lastPage, allPages) =>
-      lastPage.count ? allPages.length : undefined,
+    getNextPageParam: (lastPage, allPages) => {
+      const currentItemCount = allPages.flatMap((page) => page.data).length;
+      return lastPage.count && currentItemCount < lastPage.count
+        ? allPages.length
+        : undefined;
+    },
   });
   const posts = postData?.pages.flatMap((page) => page.data);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -46,12 +50,9 @@ const PostList = () => {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <>
+    <div className="h-full overflow-y-auto space-y-4 ">
       {posts?.map((post: Post) => (
-        <article
-          key={post.id}
-          className="py-4 border-b border-gray-200 scroll-auto"
-        >
+        <article key={post.id} className="py-4 border-b border-gray-200">
           <h2 className="text-2xl font-semibold mb-2">
             <Link href={`/post/${post.id}`}>{post.title}</Link>
           </h2>
@@ -65,7 +66,7 @@ const PostList = () => {
         {isFetchingNextPage && "Loading..."}
         {hasNextPage && "Load more"}
       </div>
-    </>
+    </div>
   );
 };
 

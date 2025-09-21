@@ -31,7 +31,7 @@ export interface PostRow {
 
 export interface PostResponse {
   data: Post[];
-  count?: number;
+  count?: number | null;
   error?: string;
 }
 

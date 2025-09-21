@@ -29,10 +29,14 @@ export default function RootLayout({
     <QueryProvider>
       <html lang="en">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased flex flex-col h-screen`}
         >
           <Header />
-          <main className="py-10 max-w-3xl mx-auto px-4">{children}</main>
+          <main className="flex-1 w-full mx-auto px-4 py-10 overflow-hidden flex justify-center">
+            <div className="max-w-3xl w-full">
+              {children}
+            </div>
+          </main>
           <Footer />
         </body>
       </html>

@@ -3,15 +3,15 @@ import type { PostResponse, SinglePostResponse } from "@/types/post";
 import supabase from "./supabase";
 
 export const getPosts = async (page: number): Promise<PostResponse> => {
-  const { data, error } = await supabase
+  const { data, error, count } = await supabase
     .from("posts")
-    .select("*")
+    .select("*", { count: "exact" })
     .range(page * 10, (page + 1) * 10 - 1)
     .order("created_at", { ascending: false });
   if (error) {
     throw error;
   }
-  return { data, count: data.length };
+  return { data: data || [], count };
 };
 const getPost = async (id: string): Promise<SinglePostResponse> => {
   const { data, error } = await supabase
