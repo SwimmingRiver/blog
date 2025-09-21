@@ -30,7 +30,7 @@ export default function LoginForm() {
         router.refresh();
       }
     } catch (err) {
-      setError("An unexpected error occurred");
+      setError((err as Error).message);
     } finally {
       setIsLoading(false);
     }
@@ -40,7 +40,10 @@ export default function LoginForm() {
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700"
+          >
             Email address
           </label>
           <input
@@ -56,7 +59,10 @@ export default function LoginForm() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700"
+          >
             Password
           </label>
           <input
@@ -73,11 +79,7 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {error && (
-        <div className="text-red-600 text-sm text-center">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-red-600 text-sm text-center">{error}</div>}
 
       <div>
         <button
@@ -91,7 +93,6 @@ export default function LoginForm() {
 
       <div className="text-center">
         <p className="text-sm text-gray-600">
-          Don't have an account?{" "}
           <button
             type="button"
             onClick={() => router.push("/signup")}

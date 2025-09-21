@@ -8,7 +8,7 @@ import AuthButton from "../auth/AuthButton";
 
 export default function NavLinks() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+
   const supabase = createClient();
 
   useEffect(() => {
@@ -17,7 +17,6 @@ export default function NavLinks() {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
-      setLoading(false);
     };
 
     getUser();
@@ -26,7 +25,6 @@ export default function NavLinks() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null);
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

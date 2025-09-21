@@ -44,7 +44,7 @@ export default function SignupForm() {
         setMessage("Check your email for the confirmation link!");
       }
     } catch (err) {
-      setError("An unexpected error occurred");
+      setError((err as Error).message);
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +54,10 @@ export default function SignupForm() {
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700"
+          >
             Email address
           </label>
           <input
@@ -70,7 +73,10 @@ export default function SignupForm() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700"
+          >
             Password
           </label>
           <input
@@ -86,7 +92,10 @@ export default function SignupForm() {
           />
         </div>
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="confirmPassword"
+            className="block text-sm font-medium text-gray-700"
+          >
             Confirm Password
           </label>
           <input
@@ -103,16 +112,10 @@ export default function SignupForm() {
         </div>
       </div>
 
-      {error && (
-        <div className="text-red-600 text-sm text-center">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-red-600 text-sm text-center">{error}</div>}
 
       {message && (
-        <div className="text-green-600 text-sm text-center">
-          {message}
-        </div>
+        <div className="text-green-600 text-sm text-center">{message}</div>
       )}
 
       <div>
