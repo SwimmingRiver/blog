@@ -5,6 +5,7 @@ export interface Post {
   title: string;
   summary: string | null;
   content: string;
+  view_count: number;
 }
 
 export interface CreatePost {
@@ -27,6 +28,7 @@ export interface PostRow {
   title: string;
   summary: string | null;
   content: string;
+  view_count: number;
 }
 
 export interface PostResponse {
@@ -38,4 +40,28 @@ export interface PostResponse {
 export interface SinglePostResponse {
   data: Post | null;
   error?: string;
+}
+
+export interface DailyView {
+  id: string;
+  date: string;
+  total_views: number;
+  created_at: string;
+}
+
+export interface SiteVisit {
+  id: string;
+  date: string;
+  total_visits: number;
+  created_at: string;
+}
+
+export interface ViewStats {
+  totalViews: number;
+  todayViews: number;
+}
+
+export interface SiteStats {
+  totalVisitors: number;
+  todayVisitors: number;
 }

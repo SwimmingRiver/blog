@@ -40,6 +40,21 @@ export default function PostPage({
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
+  // 조회수 증가
+  useEffect(() => {
+    if (id) {
+      fetch("/api/views/increment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ postId: id }),
+      }).catch((error) => {
+        console.error("Failed to increment view:", error);
+      });
+    }
+  }, [id]);
+
   if (!post) {
     return <div>Post not found</div>;
   }
@@ -70,9 +85,14 @@ export default function PostPage({
           </div>
         )}
       </div>
-      <p className="text-gray-500 mb-5">
-        {new Date(post.data?.created_at || "").toLocaleDateString("ko-KR")}
-      </p>
+      <div className="flex justify-between items-center mb-5">
+        <p className="text-gray-500">
+          {new Date(post.data?.created_at || "").toLocaleDateString("ko-KR")}
+        </p>
+        <p className="text-gray-500">
+          조회수: {post.data?.view_count || 0}
+        </p>
+      </div>
       <div className="markdown">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
