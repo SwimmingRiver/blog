@@ -1,3 +1,9 @@
+export interface Tag {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface Post {
   id: string;
   created_at: string;
@@ -6,12 +12,14 @@ export interface Post {
   summary: string | null;
   content: string;
   view_count: number;
+  tags?: Tag[];
 }
 
 export interface CreatePost {
   title: string;
   summary?: string | null;
   content: string;
+  tags?: string[];
 }
 
 export interface UpdatePost {
@@ -19,6 +27,7 @@ export interface UpdatePost {
   summary?: string | null;
   content?: string;
   updated_at?: string;
+  tags?: string[];
 }
 
 export interface PostRow {

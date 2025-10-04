@@ -93,6 +93,18 @@ export default function PostPage({
           조회수: {post.data?.view_count || 0}
         </p>
       </div>
+      {post.data?.tags && post.data.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-5">
+          {post.data.tags.map((tag) => (
+            <span
+              key={tag.id}
+              className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+            >
+              {tag.name}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="markdown">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}

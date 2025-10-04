@@ -15,6 +15,8 @@ export default function NewPostPage() {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
   const [isPreview, setIsPreview] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,9 +31,25 @@ export default function NewPostPage() {
       title,
       summary: summary.trim() || null,
       content,
+      tags: tags.length > 0 ? tags : undefined,
     };
 
     createPost(postData);
+  };
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const trimmedTag = tagInput.trim();
+      if (trimmedTag && !tags.includes(trimmedTag)) {
+        setTags([...tags, trimmedTag]);
+        setTagInput("");
+      }
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
   useEffect(() => {
@@ -95,6 +113,39 @@ export default function NewPostPage() {
             placeholder="Optional summary of your post"
             className="p-2 border border-gray-300 rounded text-base"
           />
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="tags" className="font-semibold mb-2">
+            Tags
+          </label>
+          <input
+            id="tags"
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleAddTag}
+            placeholder="Press Enter to add tags"
+            className="p-2 border border-gray-300 rounded text-base"
+          />
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex flex-col">
           <div className="flex justify-between items-center mb-2">
