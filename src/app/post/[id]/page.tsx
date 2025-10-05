@@ -40,18 +40,26 @@ export default function PostPage({
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
-  // 조회수 증가
+  // 조회수 증가 (세션당 1회만)
   useEffect(() => {
     if (id) {
-      fetch("/api/views/increment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ postId: id }),
-      }).catch((error) => {
-        console.error("Failed to increment view:", error);
-      });
+      const viewedPosts = sessionStorage.getItem("viewedPosts");
+      const viewedPostsArray = viewedPosts ? JSON.parse(viewedPosts) : [];
+
+      if (!viewedPostsArray.includes(id)) {
+        fetch("/api/views/increment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postId: id }),
+        }).then(() => {
+          viewedPostsArray.push(id);
+          sessionStorage.setItem("viewedPosts", JSON.stringify(viewedPostsArray));
+        }).catch((error) => {
+          console.error("Failed to increment view:", error);
+        });
+      }
     }
   }, [id]);
 
