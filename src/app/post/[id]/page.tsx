@@ -10,6 +10,7 @@ import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import Cookies from "js-cookie";
 
 export default function PostPage({
   params,
@@ -40,24 +41,25 @@ export default function PostPage({
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
-  // 조회수 증가 (세션당 1회만)
+  // 조회수 증가 (24시간 동안 1회만)
   useEffect(() => {
     if (id) {
-      const viewedPosts = sessionStorage.getItem("viewedPosts");
-      const viewedPostsArray = viewedPosts ? JSON.parse(viewedPosts) : [];
+      const cookieName = `viewed_${id}`;
 
-      if (!viewedPostsArray.includes(id)) {
+      if (!Cookies.get(cookieName)) {
+        // 쿠키를 먼저 설정하여 중복 호출 방지
+        Cookies.set(cookieName, 'true', { expires: 1 });
+
         fetch("/api/views/increment", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ postId: id }),
-        }).then(() => {
-          viewedPostsArray.push(id);
-          sessionStorage.setItem("viewedPosts", JSON.stringify(viewedPostsArray));
         }).catch((error) => {
           console.error("Failed to increment view:", error);
+          // 실패 시 쿠키 제거
+          Cookies.remove(cookieName);
         });
       }
     }

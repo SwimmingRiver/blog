@@ -9,6 +9,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import "highlight.js/styles/github.css";
 import ViewStats from "@/components/stats/ViewStats";
+import Cookies from "js-cookie";
 
 const PostList = () => {
   const [selectedTag, setSelectedTag] = useState<string | undefined>(undefined);
@@ -39,13 +40,22 @@ const PostList = () => {
     )
   ).sort();
 
-  // 블로그 방문 카운트
+  // 블로그 방문 카운트 (24시간 동안 1회만)
   useEffect(() => {
-    fetch("/api/site/visit", {
-      method: "POST",
-    }).catch((error) => {
-      console.error("Failed to track site visit:", error);
-    });
+    const cookieName = "site_visited";
+
+    if (!Cookies.get(cookieName)) {
+      // 쿠키를 먼저 설정하여 중복 호출 방지
+      Cookies.set(cookieName, 'true', { expires: 1 });
+
+      fetch("/api/site/visit", {
+        method: "POST",
+      }).catch((error) => {
+        console.error("Failed to track site visit:", error);
+        // 실패 시 쿠키 제거
+        Cookies.remove(cookieName);
+      });
+    }
   }, []);
 
   useEffect(() => {
