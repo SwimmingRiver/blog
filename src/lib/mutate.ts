@@ -1,15 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import supabase from "./supabase";
-import type {
-  CreatePost,
-  UpdatePost,
-  SinglePostResponse,
-} from "@/types/post";
+import type { CreatePost, UpdatePost, SinglePostResponse } from "@/types/post";
 
 export const useCreatePost = () => {
   return useMutation<SinglePostResponse, Error, CreatePost>({
     mutationFn: async (post: CreatePost) => {
-      console.log('Creating post with data:', post);
       const { tags, ...postData } = post;
 
       // Insert the post first
@@ -20,22 +15,17 @@ export const useCreatePost = () => {
         .single();
 
       if (postError) {
-        console.error('Post creation error:', postError);
+        console.error("Post creation error:", postError);
         throw postError;
       }
 
-      console.log('Post created:', newPost);
-
       // Handle tags if provided
       if (tags && tags.length > 0) {
-        console.log('Processing tags:', tags);
         // Get or create tags
         const tagIds: string[] = [];
         for (const tagName of tags) {
           const trimmedTag = tagName.trim();
           if (!trimmedTag) continue;
-
-          console.log('Looking for tag:', trimmedTag);
 
           // Try to get existing tag
           const { data: existingTags, error: selectError } = await supabase
@@ -45,14 +35,12 @@ export const useCreatePost = () => {
             .limit(1);
 
           if (selectError) {
-            console.error('Error finding tag:', selectError);
+            console.error("Error finding tag:", selectError);
           }
 
           let existingTag = existingTags?.[0];
-          console.log('Existing tag found:', existingTag);
 
           if (!existingTag) {
-            console.log('Creating new tag:', trimmedTag);
             // Create new tag
             const { data: newTag, error: tagError } = await supabase
               .from("tags")
@@ -61,10 +49,10 @@ export const useCreatePost = () => {
               .single();
 
             if (tagError) {
-              console.error('Tag creation error:', tagError);
+              console.error("Tag creation error:", tagError);
               throw tagError;
             }
-            console.log('New tag created:', newTag);
+
             existingTag = newTag;
           }
 
@@ -73,8 +61,6 @@ export const useCreatePost = () => {
           }
         }
 
-        console.log('Tag IDs to link:', tagIds);
-
         // Create post_tags relationships
         if (tagIds.length > 0) {
           const postTagsData = tagIds.map((tagId) => ({
@@ -82,20 +68,15 @@ export const useCreatePost = () => {
             tag_id: tagId,
           }));
 
-          console.log('Creating post_tags:', postTagsData);
-
           const { error: postTagsError } = await supabase
             .from("post_tags")
             .insert(postTagsData);
 
           if (postTagsError) {
-            console.error('Post tags creation error:', postTagsError);
+            console.error("Post tags creation error:", postTagsError);
             throw postTagsError;
           }
-          console.log('Post tags created successfully');
         }
-      } else {
-        console.log('No tags to process');
       }
 
       return { data: newPost, error: undefined };
@@ -187,7 +168,10 @@ export const useUpdatePost = (id: string) => {
 export const useDeletePost = () => {
   return useMutation<SinglePostResponse, Error, string>({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase.from("posts").delete().eq("id", id);
+      const { data, error } = await supabase
+        .from("posts")
+        .delete()
+        .eq("id", id);
       if (error) {
         throw error;
       }
