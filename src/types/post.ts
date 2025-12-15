@@ -40,6 +40,14 @@ export interface PostRow {
   view_count: number;
 }
 
+export interface PostTag {
+  tags: Tag | null;
+}
+
+export interface PostWithRelations extends PostRow {
+  post_tags?: PostTag[];
+}
+
 export interface PostResponse {
   data: Post[];
   count?: number | null;

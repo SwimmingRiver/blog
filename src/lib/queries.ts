@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { PostResponse, SinglePostResponse } from "@/types/post";
+import type { PostResponse, SinglePostResponse, PostWithRelations, PostTag, Tag } from "@/types/post";
 import supabase from "./supabase";
 
 export const getPosts = async (
@@ -38,9 +38,9 @@ export const getPosts = async (
 
   // Transform the data to flatten tags
   const transformedData =
-    data?.map((post: any) => {
+    data?.map((post: PostWithRelations) => {
       const tags =
-        post.post_tags?.map((pt: any) => pt.tags).filter(Boolean) || [];
+        post.post_tags?.map((pt: PostTag) => pt.tags).filter((tag): tag is Tag => tag !== null) || [];
 
       return {
         ...post,
@@ -72,10 +72,11 @@ const getPost = async (id: string): Promise<SinglePostResponse> => {
   }
 
   // Transform the data to flatten tags
-  const transformedData = data
+  const postData = data as PostWithRelations | null;
+  const transformedData = postData
     ? {
-        ...data,
-        tags: data.post_tags?.map((pt: any) => pt.tags).filter(Boolean) || [],
+        ...postData,
+        tags: postData.post_tags?.map((pt: PostTag) => pt.tags).filter((tag): tag is Tag => tag !== null) || [],
       }
     : null;
 
